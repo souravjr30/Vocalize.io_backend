@@ -145,7 +145,7 @@ def summarize_input():
     tts_engine.text_to_speech(translated_summary, tts_path, speaker_wav=tts_engine.speaker_wav_path)
 
     # Create BRF file
-    brf_path = save_text_as_brf(translated_summary)
+    brf_path = save_text_as_brf(summary)
 
     # Create PDF file
     pdf_path = create_pdf_from_text(translated_summary)
