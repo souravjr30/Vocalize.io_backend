@@ -16,8 +16,8 @@ app = Flask(__name__)
 CORS(app)
 
 # Define output directory
-OUTPUT_DIR = r"C:/Users/soura/Demo/outputs"
-#OUTPUT_DIR = os.getenv("OUTPUT_DIR", "/tmp/outputs")
+#OUTPUT_DIR = r"C:/Users/soura/Demo/outputs"
+OUTPUT_DIR = os.getenv("OUTPUT_DIR", r"C:/Users/soura/Demo/outputs")
 
 # Ensure output directory exists
 if not os.path.exists(OUTPUT_DIR):
@@ -25,8 +25,8 @@ if not os.path.exists(OUTPUT_DIR):
 
 # Initialize components
 summarizer = TextSummarizer()
-#tts_engine = TTSEngine(speaker_wav_path=os.getenv("SPEAKER_WAV_PATH", "/path/to/AI.wav"), output_dir=OUTPUT_DIR)
-tts_engine = TTSEngine(speaker_wav_path = r"C:\Users\soura\Demo\AI.wav", output_dir=OUTPUT_DIR)
+tts_engine = TTSEngine(speaker_wav_path=os.getenv("SPEAKER_WAV_PATH", r"C:/Users/soura/Demo/AI.wav"), output_dir=OUTPUT_DIR)
+#tts_engine = TTSEngine(speaker_wav_path = r"C:\Users\soura\Demo\AI.wav", output_dir=OUTPUT_DIR)
 
 '''if not os.path.exists('./outputs'):
     os.makedirs('./outputs')'''
