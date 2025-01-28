@@ -4,7 +4,6 @@ __pycache__/
 
 # Ignore audio files
 *.mp3
-*.wav
 
 # Ignore video files
 *.mp4
