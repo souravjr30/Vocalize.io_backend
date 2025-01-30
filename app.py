@@ -3,6 +3,7 @@ from flask_cors import CORS
 from summarizer import TextSummarizer
 from tts_engine import TTSEngine
 import whisper
+from dotenv import load_dotenv
 from pydub import AudioSegment
 import os
 import subprocess
@@ -14,6 +15,7 @@ from braille_converter import text_to_braille
 
 app = Flask(__name__)
 CORS(app)
+load_dotenv()
 
 # Define output directory
 #OUTPUT_DIR = r"C:/Users/soura/Demo/outputs"
@@ -165,11 +167,11 @@ def download_file():
         return jsonify({"error": "File not found"}), 404
     return send_file(file_path, as_attachment=True)
 
-'''if __name__ == "__main__":
-    app.run(debug=True)'''
+# if __name__ == "__main__":
+#     app.run(debug=True)
 
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 10000))
+    port = int(os.getenv("PORT", 8000))
     app.run(host="0.0.0.0", port=port, debug=True)
 
 
