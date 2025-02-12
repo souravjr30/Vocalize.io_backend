@@ -1,8 +1,9 @@
 from transformers import pipeline
-
+import torch
 class TextSummarizer:
     def __init__(self):
-        self.summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+        self.device = 0 if torch.cuda.is_available() else -1
+        self.summarizer = pipeline("summarization", model="facebook/bart-large-cnn", device=self.device)
     
     def summarize(self, text, max_length=130, min_length=30):
         # Split the text into chunks that the model can handle

@@ -12,6 +12,7 @@ from fpdf import FPDF
 from fitz import open as fitz_open  # PyMuPDF
 from translator import translate_text
 from braille_converter import text_to_braille
+import torch
 
 app = Flask(__name__)
 CORS(app)
@@ -41,18 +42,30 @@ def convert_mp3_to_wav(mp3_path):
     audio.export(wav_path, format="wav")
     return wav_path
 
-def transcribe_audio_to_text(audio_path):
+'''def transcribe_audio_to_text(audio_path):
     model = whisper.load_model("base")
+    result = model.transcribe(audio_path)
+    return result["text"]'''
+
+def transcribe_audio_to_text(audio_path):
+    # Load the model and move it to GPU if available
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    print(f"Using device: {device}")  # Optional: Print to confirm device
+
+    model = whisper.load_model("base").to(device)
+
+    # Transcribe the audio
     result = model.transcribe(audio_path)
     return result["text"]
 
 def extract_audio_from_youtube(youtube_url):
-    ydl_opts = {'format': 'bestaudio/best', 'quiet': True, 'no_warnings': True}
+    ydl_opts = {'format': 'bestaudio[abr<=128k]/bestaudio/best', 'quiet': True, 'no_warnings': True}
     try:
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(youtube_url, download=False)
             for f in info_dict['formats']:
-                if 'acodec' in f and 'vcodec' in f and f['acodec'] != 'none' and f['vcodec'] == 'none':
+                #if 'acodec' in f and 'vcodec' in f and f['acodec'] != 'none' and f['vcodec'] == 'none':
+                if f.get('acodec') != 'none' and f.get('vcodec') == 'none':
                     return f['url']
     except Exception as e:
         print(f"Error extracting audio from YouTube: {e}")
@@ -60,9 +73,22 @@ def extract_audio_from_youtube(youtube_url):
     return None
 
 def convert_audio_to_wav(audio_url, output_path="audio.wav"):
-    command = [
+    '''command = [
         'ffmpeg', '-i', audio_url, '-vn', '-acodec', 'pcm_s16le', '-ar', '44100', '-ac', '2', output_path
+    ]'''
+    command = [
+    'ffmpeg',
+    '-i', audio_url,
+    '-vn',                         # No video
+    '-acodec', 'pcm_s16le',         # Audio codec: PCM 16-bit little-endian
+    '-ar', '44100',                 # Audio sampling rate: 44100 Hz
+    '-ac', '2',                     # Audio channels: Stereo
+    '-preset', 'ultrafast',         # FFmpeg preset for the fastest encoding
+    '-threads', '6',                # Use 6 threads (you can adjust this based on your CPU)
+    '-y',                           # Overwrite output file if it exists
+    output_path
     ]
+
     try:
         subprocess.run(command, check=True)
     except subprocess.CalledProcessError as e:
@@ -72,6 +98,41 @@ def convert_audio_to_wav(audio_url, output_path="audio.wav"):
     #subprocess.run(command, check=True)
     #return output_path
 
+'''def extract_audio_from_youtube(youtube_url):
+    ydl_opts = {
+        'format': 'bestaudio/best',
+        'quiet': True,
+        'no_warnings': True,
+        'outtmpl': os.path.join(OUTPUT_DIR, 'youtube_audio.%(ext)s'),
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '192',
+        }],
+    }
+    try:
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            info_dict = ydl.extract_info(youtube_url, download=True)
+            audio_file = ydl.prepare_filename(info_dict)
+            return audio_file
+    except Exception as e:
+        print(f"Error extracting audio from YouTube: {e}")
+        return None
+
+def convert_audio_to_wav(audio_path, output_path="audio.wav"):
+    if not os.path.exists(audio_path):
+        print(f"Error: File not found at {audio_path}")
+        return None
+    command = [
+        'ffmpeg', '-i', audio_path, '-vn', '-acodec', 'pcm_s16le', '-ar', '44100', '-ac', '2', output_path
+    ]
+    try:
+        subprocess.run(command, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error during audio conversion: {e}")
+        raise
+    return output_path
+'''
 def extract_text_from_pdf(pdf_path):
     pdf_document = fitz_open(pdf_path)
     text = ""
@@ -129,6 +190,9 @@ def summarize_input():
             return jsonify({"error": "Could not extract audio from YouTube"}), 500
 
         wav_path = convert_audio_to_wav(audio_url)
+        #if not wav_path:
+         #   return jsonify({"error": "Could not convert audio to WAV"}), 500
+    
         text = transcribe_audio_to_text(wav_path)
         os.remove(wav_path)
 
@@ -165,14 +229,14 @@ def download_file():
     file_path = request.args.get("file_path")
     if not file_path or not os.path.exists(file_path):
         return jsonify({"error": "File not found"}), 404
-    return send_file(file_path, as_attachment=True)
-
-# if __name__ == "__main__":
-#     app.run(debug=True)
+    return send_file(file_path, as_attachment=True, conditional=False)
 
 if __name__ == "__main__":
+     app.run(debug=True)
+
+'''if __name__ == "__main__":
     port = int(os.getenv("PORT", 8000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    app.run(host="0.0.0.0", port=port, debug=True)'''
 
 
 '''English: en (default if no language is specified)
