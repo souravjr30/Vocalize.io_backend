@@ -28,7 +28,8 @@ if not os.path.exists(OUTPUT_DIR):
 
 # Initialize components
 summarizer = TextSummarizer()
-tts_engine = TTSEngine(speaker_wav_path=os.getenv("SPEAKER_WAV_PATH", r"C:/Users/soura/Demo/AI.wav"), output_dir=OUTPUT_DIR)
+tts_engine = TTSEngine(speaker_idx="Ana Florence", output_dir=OUTPUT_DIR)
+#tts_engine = TTSEngine(speaker_wav_path=os.getenv("SPEAKER_WAV_PATH", r"C:/Users/soura/Demo/AI.wav"), output_dir=OUTPUT_DIR)
 #tts_engine = TTSEngine(speaker_wav_path = r"C:\Users\soura\Demo\AI.wav", output_dir=OUTPUT_DIR)
 
 '''if not os.path.exists('./outputs'):
@@ -208,7 +209,7 @@ def summarize_input():
 
     # Convert to speech '''tts_path = f"summary.mp3"'''
     tts_path = os.path.join(OUTPUT_DIR, "summary.mp3")
-    tts_engine.text_to_speech(translated_summary, tts_path, speaker_wav=tts_engine.speaker_wav_path)
+    tts_engine.text_to_speech(translated_summary, tts_path, speaker="Ana Florence")
 
     # Create BRF file
     brf_path = save_text_as_brf(summary)
