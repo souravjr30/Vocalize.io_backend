@@ -141,12 +141,28 @@ def extract_text_from_pdf(pdf_path):
         text += page.get_text()
     return text
 
-def create_pdf_from_text(text, output_filename="summary.pdf"):
+'''def create_pdf_from_text(text, output_filename="summary.pdf"):
     output_path = os.path.join(OUTPUT_DIR, output_filename)
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
     pdf.multi_cell(190, 10, text)
+    pdf.output(output_path)
+    return output_path'''
+
+def create_pdf_from_text(text, output_filename="summary.pdf"):
+    output_path = os.path.join(OUTPUT_DIR, output_filename)
+    
+    pdf = FPDF()
+    pdf.add_page()
+    
+    # Add a Unicode-compatible font (DejaVuSans supports many languages)
+    pdf.add_font("DejaVu", "", "DejaVuSans.ttf", uni=True)
+    pdf.set_font("DejaVu", size=12)
+    
+    # Use multi_cell to handle line wrapping
+    pdf.multi_cell(190, 10, text)
+    
     pdf.output(output_path)
     return output_path
 
@@ -167,6 +183,7 @@ def summarize_input():
     target_language = request.form.get("language")
 
     if input_type == "text" and text:
+        print(text)
         summary = summarizer.summarize(text)
 
     elif input_type == "file" and file:
@@ -209,7 +226,7 @@ def summarize_input():
 
     # Convert to speech '''tts_path = f"summary.mp3"'''
     tts_path = os.path.join(OUTPUT_DIR, "summary.mp3")
-    tts_engine.text_to_speech(translated_summary, tts_path, speaker="Ana Florence")
+    tts_engine.text_to_speech(translated_summary, tts_path, speaker="Ana Florence", language=target_language)
 
     # Create BRF file
     brf_path = save_text_as_brf(summary)

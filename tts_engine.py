@@ -50,7 +50,7 @@ class TTSEngine:
         self.tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2")
         self.tts.to(device)
     
-    def text_to_speech(self, text, filename="output.wav", language="en", speaker=None):
+    def text_to_speech(self, text, filename="output.wav", language='en', speaker=None):
         filepath = os.path.join(self.output_dir, filename)
         # Generate speech
         self.tts.tts_to_file(
@@ -58,7 +58,8 @@ class TTSEngine:
             file_path=filepath,
             speaker=speaker or self.speaker_idx, 
             #speaker_idx=self.speaker_idx, 
-            language=language
+            language=language,
+            #split_sentences=True
         )
         print(f"Speech generated and saved to {filepath}")
         return filepath
